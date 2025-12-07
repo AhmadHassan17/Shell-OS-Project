@@ -1,0 +1,574 @@
+================================================================================
+MINISHELL_NOEXEC - COMPREHENSIVE TEST CASES
+================================================================================
+
+This file contains test commands and their expected outputs.
+Copy and paste commands into the shell to verify functionality.
+
+================================================================================
+1. BASIC BUILTIN COMMANDS
+================================================================================
+
+Test: pwd
+Command: pwd
+Expected: Current working directory path (e.g., /home/device/university/5thSmes/OS/project)
+
+Test: cd
+Command: cd /tmp
+Expected: (no output, prompt changes)
+Command: pwd
+Expected: /tmp
+
+Test: cd without argument
+Command: cd
+Expected: (no output, changes to HOME directory)
+Command: pwd
+Expected: $HOME path
+
+Test: echo
+Command: echo hello world
+Expected: hello world
+
+Test: echo with -n
+Command: echo -n no newline
+Expected: no newline (no newline at end)
+
+Test: echo multiple arguments
+Command: echo one two three
+Expected: one two three
+
+================================================================================
+2. FILE OPERATIONS
+================================================================================
+
+Test: touch - create files
+Command: touch file1.txt file2.txt file3.txt
+Expected: (no output, files created)
+
+Test: ls - list files
+Command: ls
+Expected: List of files/directories (excluding . and ..)
+
+Test: ls with path
+Command: ls /tmp
+Expected: List of files in /tmp
+
+Test: ls with glob pattern
+Command: ls *.txt
+Expected: List of all .txt files
+
+Test: cat - display file
+Command: echo "line1\nline2\nline3" > test.txt
+Command: cat test.txt
+Expected: 
+line1
+line2
+line3
+
+Test: cat multiple files
+Command: echo "file1" > f1.txt
+Command: echo "file2" > f2.txt
+Command: cat f1.txt f2.txt
+Expected:
+file1
+file2
+
+Test: cat from stdin
+Command: echo "stdin content" | cat
+Expected: stdin content
+
+Test: mkdir - create directory
+Command: mkdir testdir
+Expected: (no output, directory created)
+
+Test: mkdir -p - create parent directories
+Command: mkdir -p path/to/dir
+Expected: (no output, creates path/, path/to/, path/to/dir)
+
+Test: rm - remove file
+Command: touch todelete.txt
+Command: rm todelete.txt
+Expected: (no output, file removed)
+
+Test: rm - remove multiple files
+Command: touch f1.txt f2.txt f3.txt
+Command: rm f1.txt f2.txt f3.txt
+Expected: (no output, all files removed)
+
+Test: rm -rf - remove directory recursively
+Command: mkdir -p testdir/subdir
+Command: touch testdir/file.txt
+Command: rm -rf testdir
+Expected: (no output, directory and contents removed)
+
+================================================================================
+3. GLOB PATTERN EXPANSION
+================================================================================
+
+Test: rm with glob pattern
+Command: touch test1.txt test2.txt test3.txt other.c
+Command: rm *.txt
+Expected: (no output, all .txt files removed)
+Command: ls *.txt
+Expected: (error or no output if no .txt files remain)
+
+Test: ls with glob pattern
+Command: touch file1.c file2.c file3.c
+Command: ls *.c
+Expected:
+file1.c
+file2.c
+file3.c
+
+Test: cat with glob pattern
+Command: echo "content1" > file1.txt
+Command: echo "content2" > file2.txt
+Command: cat *.txt
+Expected:
+content1
+content2
+
+Test: Multiple glob patterns
+Command: touch test1.txt test2.c test3.txt test4.c
+Command: rm *.txt *.c
+Expected: (no output, all matching files removed)
+
+================================================================================
+4. PIPELINES
+================================================================================
+
+Test: Simple pipeline
+Command: echo "hello world" | grep hello
+Expected: hello world
+
+Test: Multiple pipes
+Command: ls | grep src | grep .
+Expected: (lines containing "src" and ".")
+
+Test: Pipeline with builtins
+Command: echo "line1\nline2\nline3" | grep line2
+Expected: line2
+
+Test: Pipeline with cat
+Command: echo "test content" | cat
+Expected: test content
+
+Test: Long pipeline
+Command: ls | grep txt | grep test
+Expected: (files matching both "txt" and "test")
+
+================================================================================
+5. REDIRECTION
+================================================================================
+
+Test: Output redirection (>)
+Command: echo "test content" > output.txt
+Expected: (no output)
+Command: cat output.txt
+Expected: test content
+
+Test: Output append (>>)
+Command: echo "first line" > append.txt
+Command: echo "second line" >> append.txt
+Command: cat append.txt
+Expected:
+first line
+second line
+
+Test: Input redirection (<)
+Command: echo "file content" > input.txt
+Command: cat < input.txt
+Expected: file content
+
+Test: Redirection with pipeline
+Command: echo "test" | grep test > out.txt
+Command: cat out.txt
+Expected: test
+
+Test: Multiple redirections
+Command: echo "content" > file1.txt
+Command: cat < file1.txt > file2.txt
+Command: cat file2.txt
+Expected: content
+
+================================================================================
+6. BACKGROUND JOBS
+================================================================================
+
+Test: Background job
+Command: echo "background" &
+Expected: [bg] started <pid> (or similar)
+
+Test: jobs command
+Command: echo "test" &
+Command: jobs
+Expected: List of background jobs with status
+
+Note: For testing background jobs, you may need a static binary that runs longer.
+Create with: gcc -static -o sleep_static sleep.c (where sleep.c sleeps for N seconds)
+
+================================================================================
+7. COMMAND SEQUENCING (;)
+================================================================================
+
+Test: Multiple commands with semicolon
+Command: echo one; echo two; echo three
+Expected:
+one
+two
+three
+
+Test: cd and pwd sequence
+Command: cd /tmp; pwd; cd; pwd
+Expected:
+/tmp
+$HOME
+
+Test: Command sequence with errors
+Command: echo success; rm nonexistent; echo done
+Expected:
+success
+rm: nonexistent: No such file or directory
+done
+
+================================================================================
+8. ENVIRONMENT VARIABLES
+================================================================================
+
+Test: export
+Command: export TESTVAR=testvalue
+Expected: (no output)
+Command: echo $TESTVAR
+Expected: (Note: $VAR expansion not implemented, but variable is set)
+
+Test: unset
+Command: export MYVAR=value
+Command: unset MYVAR
+Expected: (no output, variable removed)
+
+================================================================================
+9. ALIASES
+================================================================================
+
+Test: Create alias
+Command: alias ll='ls'
+Expected: (no output)
+
+Test: List aliases
+Command: alias
+Expected: List of all aliases (e.g., alias ll='ls')
+
+Test: Use alias
+Command: alias myls='ls'
+Command: myls
+Expected: List of files (same as ls)
+
+Test: Remove alias
+Command: alias test='echo test'
+Command: unalias test
+Command: alias
+Expected: test alias should not appear in list
+
+Test: Recursive alias
+Command: alias a='echo hello'
+Command: alias b='a'
+Command: b
+Expected: hello
+
+================================================================================
+10. COMMAND HISTORY
+================================================================================
+
+Test: history command
+Command: echo test1
+Command: echo test2
+Command: echo test3
+Command: history
+Expected: Numbered list of previous commands:
+    1  echo test1
+    2  echo test2
+    3  echo test3
+    4  history
+
+Test: Up arrow navigation
+Command: (Type a command, then press Up arrow)
+Expected: Previous command appears in input line
+
+Test: Down arrow navigation
+Command: (After pressing Up, press Down arrow)
+Expected: Next/newer command appears, or clears to empty
+
+================================================================================
+11. TAB COMPLETION
+================================================================================
+
+Test: Tab completion - single match
+Command: Type "pw" and press Tab
+Expected: Automatically completes to "pwd"
+
+Test: Tab completion - multiple matches
+Command: Type "e" and press Tab
+Expected: Shows numbered list:
+Available completions:
+─────────────────────────────────────────────────────────────
+  1. echo - Print text
+  2. exit - Exit shell
+─────────────────────────────────────────────────────────────
+Press Tab again to cycle through matches, or type to continue.
+
+Test: Tab completion - filename
+Command: Type "cat te" and press Tab (if test files exist)
+Expected: Completes or lists matching files
+
+================================================================================
+12. QUOTES AND ESCAPES
+================================================================================
+
+Test: Single quotes (literal)
+Command: echo 'a  b   c'
+Expected: a  b   c (preserves multiple spaces)
+
+Test: Double quotes with escapes
+Command: echo "line1\nline2"
+Expected:
+line1
+line2
+
+Test: Escaped characters
+Command: echo "quote \"inside\" text"
+Expected: quote "inside" text
+
+Test: Backslash escape
+Command: echo a\ b
+Expected: a b
+
+Test: Mixed quotes
+Command: echo 'single' "double" mixed
+Expected: single double mixed
+
+================================================================================
+13. EXIT COMMAND
+================================================================================
+
+Test: exit with default code
+Command: exit
+Expected: Shell exits with status 0
+
+Test: exit with custom code
+Command: exit 42
+Expected: Shell exits with status 42
+
+================================================================================
+14. ERROR HANDLING
+================================================================================
+
+Test: Command not found
+Command: nonexistentcommand
+Expected: nonexistentcommand: command not found
+
+Test: File not found
+Command: cat nonexistent.txt
+Expected: cat: nonexistent.txt: No such file or directory
+
+Test: Permission denied (if applicable)
+Command: cat /root/secret (if no permission)
+Expected: Error message about permission
+
+Test: Invalid cd
+Command: cd /nonexistent/path
+Expected: cd: /nonexistent/path: No such file or directory
+
+================================================================================
+15. COMBINED FEATURES
+================================================================================
+
+Test: Pipeline with redirection
+Command: echo "test content" | grep test > result.txt
+Command: cat result.txt
+Expected: test content
+
+Test: Background job with redirection
+Command: echo "background" > bg.txt &
+Expected: [bg] started <pid>
+
+Test: Multiple commands with glob
+Command: touch file1.txt file2.txt
+Command: cat *.txt > combined.txt
+Command: cat combined.txt
+Expected: Contents of both files
+
+Test: Alias in pipeline
+Command: alias myecho='echo'
+Command: myecho test | grep test
+Expected: test
+
+Test: History with aliases
+Command: alias ll='ls'
+Command: ll
+Command: history
+Expected: Shows "ll" in history (not expanded)
+
+================================================================================
+16. STATIC BINARY EXECUTION (ELF Loader)
+================================================================================
+
+Note: To test external program execution, you need static binaries.
+Create test programs:
+
+1. Create hello.c:
+   #include <stdio.h>
+   int main() { printf("Hello from static binary!\n"); return 0; }
+
+2. Compile statically:
+   gcc -static -o hello_static hello.c
+
+3. Test:
+   Command: ./hello_static
+   Expected: Hello from static binary!
+
+4. Test with arguments:
+   Command: ./hello_static arg1 arg2
+   Expected: (program receives arguments)
+
+5. Test in PATH:
+   Command: cp hello_static ~/bin/ (if ~/bin in PATH)
+   Command: hello_static
+   Expected: Hello from static binary!
+
+================================================================================
+17. SIGNAL HANDLING
+================================================================================
+
+Test: Ctrl-C (SIGINT)
+Command: (Start a long-running command, press Ctrl-C)
+Expected: Command interrupted, shell continues (prompt appears)
+
+Test: Ctrl-Z (SIGTSTP)
+Command: (Press Ctrl-Z at prompt)
+Expected: Shell continues (signal ignored)
+
+================================================================================
+18. EDGE CASES
+================================================================================
+
+Test: Empty command
+Command: (Press Enter on empty line)
+Expected: (No output, new prompt)
+
+Test: Multiple spaces
+Command: echo    hello    world
+Expected: hello world
+
+Test: Tabs in command
+Command: echo	hello	world (with tabs)
+Expected: hello world
+
+Test: Very long command line
+Command: echo a b c d e f g h i j k l m n o p q r s t u v w x y z
+Expected: a b c d e f g h i j k l m n o p q r s t u v w x y z
+
+Test: Special characters in filenames
+Command: touch "file with spaces.txt"
+Command: cat "file with spaces.txt"
+Expected: (Handles spaces in filename)
+
+Test: Nested quotes
+Command: echo "outer 'inner' quotes"
+Expected: outer 'inner' quotes
+
+================================================================================
+19. CLEANUP TESTS
+================================================================================
+
+Test: Clean up test files
+Command: rm -f *.txt *.c testdir combined.txt result.txt bg.txt output.txt append.txt input.txt file*.txt
+Expected: (no output, all test files removed)
+
+================================================================================
+20. NON-INTERACTIVE MODE (-c)
+================================================================================
+
+Test: Single command
+Command: ./bin/minishell_noexec -c "echo test"
+Expected: test
+
+Test: Multiple commands
+Command: ./bin/minishell_noexec -c "echo one; echo two"
+Expected:
+one
+two
+
+Test: Pipeline in -c mode
+Command: ./bin/minishell_noexec -c "echo test | grep test"
+Expected: test
+
+Test: Exit code
+Command: ./bin/minishell_noexec -c "exit 5"; echo $?
+Expected: 5
+
+================================================================================
+NOTES FOR TESTING
+================================================================================
+
+1. Some tests require creating test files first (touch, echo > file)
+2. Background job tests may need static binaries that run longer
+3. History navigation requires interactive mode (not -c)
+4. Tab completion requires interactive mode and terminal
+5. Signal tests (Ctrl-C, Ctrl-Z) require interactive mode
+6. Static binary execution requires compiling test programs with -static flag
+7. Environment variable expansion ($VAR) is not implemented
+8. Dynamic binaries cannot be executed (only static ELF binaries)
+
+================================================================================
+QUICK TEST SEQUENCE (Copy and paste)
+================================================================================
+
+# Basic functionality
+pwd
+cd /tmp
+pwd
+cd
+pwd
+
+# File operations
+touch test1.txt test2.txt test3.txt
+ls
+ls *.txt
+cat test1.txt
+echo "content" > test1.txt
+cat test1.txt
+
+# Glob patterns
+rm *.txt
+ls *.txt || echo "All txt files removed"
+
+# Pipelines
+echo "hello world" | grep hello
+ls | grep src
+
+# Redirection
+echo "test" > out.txt
+cat < out.txt
+echo "append" >> out.txt
+cat out.txt
+
+# Command sequencing
+echo one; echo two; echo three
+
+# Aliases
+alias ll='ls'
+ll
+unalias ll
+
+# History
+history
+
+# Cleanup
+rm -f *.txt out.txt
+
+exit
+
+================================================================================
+END OF TEST CASES
+================================================================================
+
